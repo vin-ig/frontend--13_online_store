@@ -44,3 +44,13 @@ a {
         cursor: not-allowed;
     }
 }
+
+.mat-menu-item {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+
+    a {
+        color: $gray-text-color;
+        text-decoration: none;
+    }
+}
