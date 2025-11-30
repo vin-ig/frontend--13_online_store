@@ -9,6 +9,11 @@ header.header {
 
         a.logo {
             cursor: pointer;
+            max-width: 148px;
+
+            img {
+                max-width: 100%;
+            }
         }
 
         .header-top {
@@ -35,7 +40,7 @@ header.header {
                         border-bottom: 1px solid transparent;
 
                         &.active {
-                            border-bottom-color: $base-text-color;
+                            border-bottom-color: $green-text-color;
                         }
 
                         a {
@@ -52,7 +57,7 @@ header.header {
                 cursor: pointer;
                 text-decoration: none;
                 margin-right: 60px;
-                color: $base-text-color;
+                color: $green-text-color;
             }
 
             .header-top-actions {
@@ -105,7 +110,7 @@ header.header {
                         border-bottom: 1px solid transparent;
 
                         &.active {
-                            border-bottom-color: $base-text-color;
+                            border-bottom-color: $green-text-color;
                         }
 
                         a {
@@ -125,7 +130,7 @@ header.header {
                     height: 41px;
                     box-sizing: border-box;
                     outline: none;
-                    border: 1px solid $base-text-color;
+                    border: 1px solid $green-text-color;
                     border-radius: 30px;
                     padding: 10px 10px 10px 43px;
                     font-size: 16px;
