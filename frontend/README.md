@@ -25,3 +25,13 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Запуск проекта
+
+`D:/mongodb/bin/mongod --dbpath d:/mongodb_data`\
+`cd backend && npm start`
+
+## Макет
+
+[Оригинал](https://www.figma.com/file/hDcxJ3Aop4uXLgtTuGd6Zx/Интернет-магазин?node-id=0%3A1&t=2kwIALmb7c1BKemd-0)\
+[Моя копия](https://www.figma.com/design/YgEbDUBtaX189liWnPNnPe/Интернет-магазин--Copy-?node-id=0-1&p=f&t=S2wRqkL6mD3F6UO6-0)
