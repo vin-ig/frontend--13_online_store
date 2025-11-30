@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable, Subject} from "rxjs";
+import {Observable, Subject, throwError} from "rxjs";
 import {DefaultResponseType} from "../../../types/default-response.type";
 import {LoginResponseType} from "../../../types/login-response.type";
 import {HttpClient} from "@angular/common/http";
@@ -20,10 +20,6 @@ export class AuthService {
 
     constructor(private http: HttpClient) {
         this._isLogged = !!localStorage.getItem(this.accessTokenKey)
-    }
-
-    login(email: string, password: string, rememberMe: boolean): Observable<DefaultResponseType | LoginResponseType> {
-        return this.http.post<DefaultResponseType | LoginResponseType>(environment.api + 'login', {email, password, rememberMe})
     }
 
     setTokens(accessToken: string, refreshToken: string): void {
@@ -54,6 +50,20 @@ export class AuthService {
             localStorage.setItem(this.userIdKey, id)
         } else {
             localStorage.removeItem(this.userIdKey)
+        }
+    }
+
+    /*  Запросы  */
+    login(email: string, password: string, rememberMe: boolean): Observable<DefaultResponseType | LoginResponseType> {
+        return this.http.post<DefaultResponseType | LoginResponseType>(environment.api + 'login', {email, password, rememberMe})
+    }
+
+    logout(): Observable<DefaultResponseType> {
+        const refreshToken = this.getTokens().refreshToken
+        if (refreshToken) {
+            return this.http.post<DefaultResponseType>(environment.api + 'logout', {refreshToken})
+        } else {
+            throw throwError(() => 'Can not find token')
         }
     }
 }

@@ -1,6 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {CategoryType} from "../../../../types/category.type";
 import {AuthService} from "../../../core/auth/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'app-header',
@@ -11,7 +13,11 @@ export class HeaderComponent implements OnInit {
     @Input() categories: CategoryType[] = []
     isLogged: boolean = false
 
-    constructor(private authService: AuthService) {
+    constructor(
+        private authService: AuthService,
+        private _snackBar: MatSnackBar,
+        private router: Router,
+    ) {
         this.isLogged = this.authService.isLogged
     }
 
@@ -22,8 +28,20 @@ export class HeaderComponent implements OnInit {
     }
 
     logout(): void {
-        // Временно
+        this.authService.logout().subscribe({
+            next: (() => {
+                this.doLogout()
+            }),
+            error: () => {
+                this.doLogout()
+            }
+        })
+    }
+
+    doLogout(): void {
         this.authService.removeTokens()
         this.authService.userId = null
+        this._snackBar.open('Вы вышли из системы', 'Закрыть')
+        this.router.navigate(['/'])
     }
 }
