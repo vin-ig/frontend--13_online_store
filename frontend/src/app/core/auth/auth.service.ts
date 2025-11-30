@@ -58,6 +58,10 @@ export class AuthService {
         return this.http.post<DefaultResponseType | LoginResponseType>(environment.api + 'login', {email, password, rememberMe})
     }
 
+    signup(email: string, password: string, passwordRepeat: string): Observable<DefaultResponseType | LoginResponseType> {
+        return this.http.post<DefaultResponseType | LoginResponseType>(environment.api + 'signup', {email, password, passwordRepeat})
+    }
+
     logout(): Observable<DefaultResponseType> {
         const refreshToken = this.getTokens().refreshToken
         if (refreshToken) {
