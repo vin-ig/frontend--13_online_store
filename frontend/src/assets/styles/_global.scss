@@ -9,6 +9,10 @@ html, body {
 a {
     text-decoration: none;
     cursor: pointer;
+
+    &.button {
+        display: inline-block;
+    }
 }
 
 .container {
