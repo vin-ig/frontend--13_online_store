@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {PasswordRepeatDirective} from "./directives/password-repeat.directive";
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import {RouterModule} from "@angular/router";
+import {FormsModule} from "@angular/forms";
 
 
 @NgModule({
@@ -13,6 +14,7 @@ import {RouterModule} from "@angular/router";
     imports: [
         CommonModule,
         RouterModule,
+        FormsModule,
     ],
     exports: [
         PasswordRepeatDirective,
