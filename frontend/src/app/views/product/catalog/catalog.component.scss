@@ -33,6 +33,11 @@
                     padding: 8px 14px;
                     display: flex;
                     align-items: center;
+                    cursor: default;
+
+                    &:hover {
+                        background: #E7F1E8;
+                    }
 
                     a {
                         display: flex;
@@ -42,7 +47,8 @@
             }
 
             .catalog-sorting {
-                width: 257px;
+                width: 190px;
+                min-width: 190px;
                 box-sizing: border-box;
                 position: relative;
                 font-size: 16px;
@@ -87,11 +93,18 @@
                 }
 
                 &.open {
+                    width: 257px;
+                    min-width: 257px;
+
                     .catalog-sorting-head {
                         color: black;
                         background-color: #E8E8E8;
                         border-radius: 5px 5px 0 0;
                         padding-right: 23px;
+
+                        svg {
+                            transform: rotate(180deg);
+                        }
                     }
 
                     .catalog-sorting-body {

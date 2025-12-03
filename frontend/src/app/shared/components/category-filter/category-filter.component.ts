@@ -2,6 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {CategoryWithTypeType} from "../../../../types/category-with-type.type";
 import {ActivatedRoute, Router} from "@angular/router";
 import {ActiveParamsType} from "../../../../types/active-params.type";
+import {ActiveParamsUtil} from "../../utils/active-params.util";
 
 @Component({
     selector: 'category-filter',
@@ -38,22 +39,8 @@ export class CategoryFilterComponent implements OnInit {
 
     ngOnInit(): void {
         this.activatedRoute.queryParams.subscribe(params => {
-            // I. Восстанавливаем значения фильтров из других компонентов
-            const activeParams: ActiveParamsType = {types: []}
+            this.activeParams = ActiveParamsUtil.processParams(params)
 
-            if (params.hasOwnProperty('types')) {
-                activeParams.types = Array.isArray(params['types']) ? params['types'] : [params['types']]
-            }
-            if (params.hasOwnProperty('heightFrom')) {activeParams.heightFrom = params['heightFrom']}
-            if (params.hasOwnProperty('heightTo')) {activeParams.heightTo = params['heightTo']}
-            if (params.hasOwnProperty('diameterFrom')) {activeParams.diameterFrom = params['diameterFrom']}
-            if (params.hasOwnProperty('diameterTo')) {activeParams.diameterTo = params['diameterTo']}
-            if (params.hasOwnProperty('sort')) {activeParams.sort = params['sort']}
-            if (params.hasOwnProperty('page')) {activeParams.page = +params['page']}
-
-            this.activeParams = activeParams
-
-            // II. Восстанавливаем фильтры из url
             if (this.type) {
                 if (this.type === 'height') {
                     this.open = !!(this.activeParams.heightFrom || this.activeParams.heightTo)
@@ -65,11 +52,15 @@ export class CategoryFilterComponent implements OnInit {
                     this.to = this.activeParams.diameterTo ? +this.activeParams.diameterTo : null
                 }
             } else {
-                this.activeParams.types = params['types']
+                if (params['types']) {
+                    this.activeParams.types = Array.isArray(params['types']) ? params['types'] : [params['types']]
+                }
 
                 if (this.categoryWithTypes && this.categoryWithTypes.types && this.categoryWithTypes.types.length > 0 &&
                 this.categoryWithTypes.types.some(type => this.activeParams.types.find(item => type.url === item))) {
                     this.open = true
+                } else {
+                    this.open = false
                 }
             }
         })
@@ -83,7 +74,7 @@ export class CategoryFilterComponent implements OnInit {
         if (this.activeParams.types && this.activeParams.types.length > 0) {
             const existingTypeInParams = this.activeParams.types.find(item => item === url)
             if (existingTypeInParams && !checked) {
-                this.activeParams.types = this.activeParams.types.filter(item => item != url)
+                this.activeParams.types = this.activeParams.types.filter(item => item !== url)
             } else if (!existingTypeInParams && checked) {
                 // this.activeParams.types.push(url)  Angular bug
                 this.activeParams.types = [...this.activeParams.types, url]
@@ -92,6 +83,7 @@ export class CategoryFilterComponent implements OnInit {
             this.activeParams.types = [url]
         }
 
+        this.activeParams.page = 1
         this.router.navigate(['/catalog'], {queryParams: this.activeParams})
     }
 
@@ -104,6 +96,7 @@ export class CategoryFilterComponent implements OnInit {
             }
         }
 
+        this.activeParams.page = 1
         this.router.navigate(['/catalog'], {queryParams: this.activeParams})
     }
 }
