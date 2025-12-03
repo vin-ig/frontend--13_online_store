@@ -3,6 +3,7 @@ import {CategoryType} from "../../../../types/category.type";
 import {AuthService} from "../../../core/auth/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Router} from "@angular/router";
+import {CategoryWithTypeType} from "../../../../types/category-with-type.type";
 
 @Component({
     selector: 'app-header',
@@ -10,7 +11,7 @@ import {Router} from "@angular/router";
     styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-    @Input() categories: CategoryType[] = []
+    @Input() categories: CategoryWithTypeType[] = []
     isLogged: boolean = false
 
     constructor(

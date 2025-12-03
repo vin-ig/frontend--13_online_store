@@ -1,20 +1,23 @@
 import {Component, OnInit} from '@angular/core';
 import {CategoryType} from "../../../types/category.type";
 import {CategoryService} from "../services/category.service";
+import {CategoryWithTypeType} from "../../../types/category-with-type.type";
 
 @Component({
     selector: 'app-layout',
     templateUrl: './layout.component.html',
 })
 export class LayoutComponent implements OnInit {
-    categories: CategoryType[] = []
+    categories: CategoryWithTypeType[] = []
 
     constructor(private categoryService: CategoryService) {
     }
 
     ngOnInit(): void {
-        this.categoryService.getCategories().subscribe((result: CategoryType[]) => {
-            this.categories = result
+        this.categoryService.getCategoriesWithTypes().subscribe((result: CategoryWithTypeType[]) => {
+            this.categories = result.map(item => {
+                return Object.assign({typesUrl: item.types.map(typesItem => typesItem.url)}, item)
+            })
         })
     }
 
