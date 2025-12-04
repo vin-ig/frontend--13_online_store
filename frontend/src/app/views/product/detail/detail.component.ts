@@ -2,6 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {OwlOptions} from "ngx-owl-carousel-o";
 import {ProductType} from "../../../../types/product.type";
 import {ProductService} from "../../../shared/services/product.service";
+import {ActivatedRoute} from "@angular/router";
+import {environment} from "../../../../environments/environment";
 
 @Component({
     selector: 'app-detail',
@@ -9,7 +11,9 @@ import {ProductService} from "../../../shared/services/product.service";
     styleUrls: ['./detail.component.scss']
 })
 export class DetailComponent implements OnInit {
+    readonly serverStaticPath: string = environment.serverStaticPath
     recommendedProducts: ProductType[] = []
+    product!: ProductType
 
     customOptions: OwlOptions = {
             loop: true,
@@ -39,10 +43,18 @@ export class DetailComponent implements OnInit {
 
     constructor(
         private productService: ProductService,
+        private activatedRoute: ActivatedRoute,
     ) {
     }
 
     ngOnInit(): void {
+        this.activatedRoute.params.subscribe((params) => {
+            this.productService.getProduct(params['url']).subscribe((result: ProductType) => {
+                this.product = result
+                console.log(result)
+            })
+        })
+
         this.productService.getBestProducts().subscribe((result: ProductType[]) => {
             this.recommendedProducts = result
         })
