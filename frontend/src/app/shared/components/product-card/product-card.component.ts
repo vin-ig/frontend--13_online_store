@@ -12,6 +12,7 @@ export class ProductCardComponent implements OnInit {
     count: number = 1
 
     @Input() product!: ProductType
+    @Input() isLite: boolean = false
 
     constructor() {
     }

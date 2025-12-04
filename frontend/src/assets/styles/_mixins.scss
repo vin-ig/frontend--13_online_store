@@ -15,3 +15,15 @@
     font-weight: 400;
     color: black;
 }
+
+@mixin d-flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@mixin d-flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
