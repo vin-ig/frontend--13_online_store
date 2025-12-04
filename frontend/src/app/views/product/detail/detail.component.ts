@@ -14,6 +14,7 @@ export class DetailComponent implements OnInit {
     readonly serverStaticPath: string = environment.serverStaticPath
     recommendedProducts: ProductType[] = []
     product!: ProductType
+    count: number = 1
 
     customOptions: OwlOptions = {
             loop: true,
@@ -51,7 +52,6 @@ export class DetailComponent implements OnInit {
         this.activatedRoute.params.subscribe((params) => {
             this.productService.getProduct(params['url']).subscribe((result: ProductType) => {
                 this.product = result
-                console.log(result)
             })
         })
 
@@ -60,4 +60,11 @@ export class DetailComponent implements OnInit {
         })
     }
 
+    updateCount(value: number): void {
+        this.count = value
+    }
+
+    addToCart() {
+        alert('Add: ' + this.count)
+    }
 }
