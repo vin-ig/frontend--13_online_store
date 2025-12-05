@@ -2,6 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import {OwlOptions} from "ngx-owl-carousel-o";
 import {ProductType} from "../../../../types/product.type";
 import {ProductService} from "../../../shared/services/product.service";
+import {CartService} from "../../../shared/services/cart.service";
+import {CartType} from "../../../../types/cart.type";
+import {environment} from "../../../../environments/environment";
 
 @Component({
     selector: 'app-cart',
@@ -9,7 +12,7 @@ import {ProductService} from "../../../shared/services/product.service";
     styleUrls: ['./cart.component.scss']
 })
 export class CartComponent implements OnInit {
-    extraProducts: ProductType[] = []
+    readonly serverStaticPath: string = environment.serverStaticPath
     customOptions: OwlOptions = {
         loop: true,
         mouseDrag: false,
@@ -36,8 +39,14 @@ export class CartComponent implements OnInit {
         nav: false
     }
 
+    extraProducts: ProductType[] = []
+    cart: CartType | null = null
+    totalPrice: number = 0
+    totalCount: number = 0
+
     constructor(
         private productService: ProductService,
+        private cartService: CartService,
     ) {
     }
 
@@ -45,6 +54,22 @@ export class CartComponent implements OnInit {
         this.productService.getBestProducts().subscribe((result: ProductType[]) => {
             this.extraProducts = result
         })
+
+        this.cartService.getCart().subscribe((result: CartType) => {
+            this.cart = result
+            this.calculateTotal()
+        })
     }
 
+    calculateTotal(): void {
+        this.totalPrice = 0
+        this.totalCount = 0
+
+        if (this.cart) {
+            this.cart.items.forEach(item => {
+                this.totalPrice += item.quantity * item.product.price
+                this.totalCount += item.quantity
+            })
+        }
+    }
 }
