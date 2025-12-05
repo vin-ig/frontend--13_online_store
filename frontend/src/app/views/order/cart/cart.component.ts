@@ -72,4 +72,13 @@ export class CartComponent implements OnInit {
             })
         }
     }
+
+    updateCount(id: string, value: number): void {
+        if (this.cart) {
+            this.cartService.updateCart(id, value).subscribe((result: CartType) => {
+                this.cart = result
+                this.calculateTotal()
+            })
+        }
+    }
 }

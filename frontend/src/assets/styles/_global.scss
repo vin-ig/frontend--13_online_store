@@ -77,6 +77,33 @@ a {
         }
     }
 
+    &.button-in-cart span {
+        &:first-child {
+            display: block;
+        }
+
+        &:last-child {
+            display: none;
+            color: red;
+        }
+    }
+
+    &:hover {
+        &.button-in-cart {
+            border-color: red;
+
+            span {
+                &:first-child {
+                    display: none;
+                }
+
+                &:last-child {
+                    display: block;
+                }
+            }
+        }
+    }
+
     &:disabled {
         background: gray;
         cursor: not-allowed;

@@ -13,7 +13,11 @@ export class CartService {
     }
 
     getCart(): Observable<CartType> {
-        return this.http.get<CartType>(environment.api + 'cart')
+        return this.http.get<CartType>(environment.api + 'cart', {withCredentials: true})
+    }
+
+    updateCart(productId: string, quantity: number): Observable<CartType> {
+        return this.http.post<CartType>(environment.api + 'cart', {productId, quantity}, {withCredentials: true})
     }
 
 }
