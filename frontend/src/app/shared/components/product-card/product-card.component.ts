@@ -46,13 +46,19 @@ export class ProductCardComponent implements OnInit {
     }
 
     addToCart() {
-        this.cartService.updateCart(this.product.id, this.count).subscribe((result: CartType) => {
+        this.cartService.updateCart(this.product.id, this.count).subscribe((result: CartType | DefaultResponseType) => {
+            if ((result as DefaultResponseType).error !== undefined) {
+                throw new Error((result as DefaultResponseType).message)
+            }
             this.countInCart = this.count
         })
     }
 
     removeFromCart() {
-        this.cartService.updateCart(this.product.id, 0).subscribe((result: CartType) => {
+        this.cartService.updateCart(this.product.id, 0).subscribe((result: CartType | DefaultResponseType) => {
+            if ((result as DefaultResponseType).error !== undefined) {
+                throw new Error((result as DefaultResponseType).message)
+            }
             this.countInCart = 0
             this.count = 1
         })

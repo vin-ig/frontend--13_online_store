@@ -1,10 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {CategoryType} from "../../../../types/category.type";
 import {AuthService} from "../../../core/auth/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Router} from "@angular/router";
 import {CategoryWithTypeType} from "../../../../types/category-with-type.type";
 import {CartService} from "../../services/cart.service";
+import {CartCountType} from "../../../../types/cart-count.type";
+import {DefaultResponseType} from "../../../../types/default-response.type";
 
 @Component({
     selector: 'app-header',
@@ -30,8 +31,8 @@ export class HeaderComponent implements OnInit {
             this.isLogged = result
         })
 
-        this.cartService.getProductsCount().subscribe((result: {count: number}) => {
-            this.productsCount = result.count
+        this.cartService.getProductsCount().subscribe((result: CartCountType | DefaultResponseType) => {
+            this.productsCount = (result as CartCountType).count
         })
 
         this.cartService.count$.subscribe((result: number) => {

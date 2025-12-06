@@ -3,6 +3,8 @@ import {HttpClient} from "@angular/common/http";
 import {Observable, Subject, tap} from "rxjs";
 import {environment} from "../../../environments/environment";
 import {CartType} from "../../../types/cart.type";
+import {DefaultResponseType} from "../../../types/default-response.type";
+import {CartCountType} from "../../../types/cart-count.type";
 
 @Injectable({
     providedIn: 'root'
@@ -14,28 +16,31 @@ export class CartService {
     constructor(private http: HttpClient) {
     }
 
-    getCart(): Observable<CartType> {
-        return this.http.get<CartType>(environment.api + 'cart', {withCredentials: true})
+    getCart(): Observable<CartType | DefaultResponseType> {
+        return this.http.get<CartType | DefaultResponseType>(environment.api + 'cart', {withCredentials: true})
     }
 
-    updateCart(productId: string, quantity: number): Observable<CartType> {
-        return this.http.post<CartType>(environment.api + 'cart', {productId, quantity}, {withCredentials: true}).pipe(
-            tap((result => {
-                console.log(result)
-                this.count = 0
-                result.items.forEach(item => {
-                    this.count += item.quantity
-                })
-                this.count$.next(this.count)
-            }))
+    updateCart(productId: string, quantity: number): Observable<CartType | DefaultResponseType> {
+        return this.http.post<CartType | DefaultResponseType>(environment.api + 'cart', {productId, quantity}, {withCredentials: true}).pipe(
+            tap(result => {
+                if (!result.hasOwnProperty('error')) {
+                    this.count = 0;
+                    (result as CartType).items.forEach(item => {
+                        this.count += item.quantity
+                    })
+                    this.count$.next(this.count)
+                }
+            })
         )
     }
 
-    getProductsCount(): Observable<{count: number}> {
-        return this.http.get<{count: number}>(environment.api + 'cart/count', {withCredentials: true}).pipe(
+    getProductsCount(): Observable<CartCountType | DefaultResponseType> {
+        return this.http.get<CartCountType | DefaultResponseType>(environment.api + 'cart/count', {withCredentials: true}).pipe(
             tap((result => {
-                this.count = result.count
-                this.count$.next(this.count)
+                if (!result.hasOwnProperty('error')) {
+                    this.count = (result as CartCountType).count
+                    this.count$.next(this.count)
+                }
             }))
         )
     }

@@ -65,7 +65,11 @@ export class DetailComponent implements OnInit {
                 this.product = result
 
                 // Запрос данных о корзине
-                this.cartService.getCart().subscribe((cartData: CartType) => {
+                this.cartService.getCart().subscribe((cartData: CartType | DefaultResponseType) => {
+                    if ((cartData as DefaultResponseType).error !== undefined) {
+                        throw new Error((cartData as DefaultResponseType).message)
+                    }
+                    cartData = cartData as CartType
                     if (cartData) {
                         const productInCart = cartData.items.find(item => item.product.id === this.product.id)
                         if (productInCart) {
@@ -105,13 +109,19 @@ export class DetailComponent implements OnInit {
     }
 
     addToCart() {
-        this.cartService.updateCart(this.product.id, this.count).subscribe((result: CartType) => {
+        this.cartService.updateCart(this.product.id, this.count).subscribe((result: CartType | DefaultResponseType) => {
+            if ((result as DefaultResponseType).error !== undefined) {
+                throw new Error((result as DefaultResponseType).message)
+            }
             this.product.countInCart = this.count
         })
     }
 
     removeFromCart() {
-        this.cartService.updateCart(this.product.id, 0).subscribe((result: CartType) => {
+        this.cartService.updateCart(this.product.id, 0).subscribe((result: CartType | DefaultResponseType) => {
+            if ((result as DefaultResponseType).error !== undefined) {
+                throw new Error((result as DefaultResponseType).message)
+            }
             this.product.countInCart = 0
             this.count = 1
         })
