@@ -14,7 +14,7 @@ export class FavoriteService {
     }
 
     getFavorites(): Observable<FavoriteType[] | DefaultResponseType> {
-        return this.http.get<FavoriteType[] | DefaultResponseType>(environment.api + 'favorite')
+        return this.http.get<FavoriteType[] | DefaultResponseType>(environment.api + 'favorites')
     }
 
 }
