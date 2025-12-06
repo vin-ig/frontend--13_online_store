@@ -6,6 +6,11 @@ import {ActivatedRoute} from "@angular/router";
 import {environment} from "../../../../environments/environment";
 import {CartType} from "../../../../types/cart.type";
 import {CartService} from "../../../shared/services/cart.service";
+import {FavoriteService} from "../../../shared/services/favorite.service";
+import {FavoriteType} from "../../../../types/favorite.type";
+import {DefaultResponseType} from "../../../../types/default-response.type";
+import {AuthService} from "../../../core/auth/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'app-detail',
@@ -19,52 +24,71 @@ export class DetailComponent implements OnInit {
     count: number = 1
 
     customOptions: OwlOptions = {
-            loop: true,
-            mouseDrag: false,
-            touchDrag: false,
-            pullDrag: false,
-            margin: 24,
-            dots: false,
-            navSpeed: 700,
-            navText: ['', ''],
-            responsive: {
-                0: {
-                    items: 1
-                },
-                400: {
-                    items: 2
-                },
-                740: {
-                    items: 3
-                },
-                940: {
-                    items: 4
-                }
+        loop: true,
+        mouseDrag: false,
+        touchDrag: false,
+        pullDrag: false,
+        margin: 24,
+        dots: false,
+        navSpeed: 700,
+        navText: ['', ''],
+        responsive: {
+            0: {
+                items: 1
             },
-            nav: false
-        }
+            400: {
+                items: 2
+            },
+            740: {
+                items: 3
+            },
+            940: {
+                items: 4
+            }
+        },
+        nav: false
+    }
 
     constructor(
         private productService: ProductService,
         private activatedRoute: ActivatedRoute,
         private cartService: CartService,
+        private favoriteService: FavoriteService,
+        private authService: AuthService,
+        private _snackBar: MatSnackBar,
     ) {
     }
 
     ngOnInit(): void {
         this.activatedRoute.params.subscribe((params) => {
             this.productService.getProduct(params['url']).subscribe((result: ProductType) => {
+                this.product = result
+
+                // Запрос данных о корзине
                 this.cartService.getCart().subscribe((cartData: CartType) => {
                     if (cartData) {
-                        const productInCart = cartData.items.find(item => item.product.id === result.id)
+                        const productInCart = cartData.items.find(item => item.product.id === this.product.id)
                         if (productInCart) {
-                            result.countInCart = productInCart.quantity
-                            this.count = result.countInCart
+                            this.product.countInCart = productInCart.quantity
+                            this.count = this.product.countInCart
                         }
                     }
-
-                    this.product = result
                 })
+
+                // Запрос данных об избранном
+                if (this.authService.isLogged) {
+                    this.favoriteService.getFavorites().subscribe((favoriteResult: FavoriteType[] | DefaultResponseType) => {
+                        if ((favoriteResult as DefaultResponseType).error !== undefined) {
+                            const error = (favoriteResult as DefaultResponseType).message
+                            throw new Error(error)
+                        }
+                        const favoriteProducts = favoriteResult as FavoriteType[]
+                        const currentFavoriteProductExist = favoriteProducts.find(item => item.id === this.product.id)
+                        if (currentFavoriteProductExist) {
+                            this.product.isInFavorite = true
+                        }
+                    })
+                }
             })
         })
 
@@ -91,5 +115,31 @@ export class DetailComponent implements OnInit {
             this.product.countInCart = 0
             this.count = 1
         })
+    }
+
+    updateFavorite() {
+        if (!this.authService.isLogged) {
+            this._snackBar.open('Для добавления в избранное нужно авторизоваться', 'Закрыть')
+            return
+        }
+
+
+        if (this.product.isInFavorite) {
+            this.favoriteService.removeFavorite(this.product.id).subscribe((result: DefaultResponseType) => {
+                if (result.error) {
+                    throw new Error((result as DefaultResponseType).message)
+                }
+
+                this.product.isInFavorite = false
+            })
+        } else {
+            this.favoriteService.addToFavorite(this.product.id).subscribe((result: FavoriteType[] | DefaultResponseType) => {
+                if ((result as DefaultResponseType).error !== undefined) {
+                    throw new Error((result as DefaultResponseType).message)
+                }
+
+                this.product.isInFavorite = true
+            })
+        }
     }
 }

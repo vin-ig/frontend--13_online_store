@@ -3,6 +3,11 @@ import {ProductType} from "../../../../types/product.type";
 import {environment} from "../../../../environments/environment";
 import {CartService} from "../../services/cart.service";
 import {CartType} from "../../../../types/cart.type";
+import {DefaultResponseType} from "../../../../types/default-response.type";
+import {FavoriteType} from "../../../../types/favorite.type";
+import {FavoriteService} from "../../services/favorite.service";
+import {AuthService} from "../../../core/auth/auth.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 @Component({
     selector: 'product-card',
@@ -19,6 +24,9 @@ export class ProductCardComponent implements OnInit {
 
     constructor(
         private cartService: CartService,
+        private favoriteService: FavoriteService,
+        private authService: AuthService,
+        private _snackBar: MatSnackBar,
     ) {
     }
 
@@ -46,5 +54,31 @@ export class ProductCardComponent implements OnInit {
             this.countInCart = 0
             this.count = 1
         })
+    }
+
+    updateFavorite() {
+        if (!this.authService.isLogged) {
+            this._snackBar.open('Для добавления в избранное нужно авторизоваться', 'Закрыть')
+            return
+        }
+
+
+        if (this.product.isInFavorite) {
+            this.favoriteService.removeFavorite(this.product.id).subscribe((result: DefaultResponseType) => {
+                if (result.error) {
+                    throw new Error((result as DefaultResponseType).message)
+                }
+
+                this.product.isInFavorite = false
+            })
+        } else {
+            this.favoriteService.addToFavorite(this.product.id).subscribe((result: FavoriteType[] | DefaultResponseType) => {
+                if ((result as DefaultResponseType).error !== undefined) {
+                    throw new Error((result as DefaultResponseType).message)
+                }
+
+                this.product.isInFavorite = true
+            })
+        }
     }
 }

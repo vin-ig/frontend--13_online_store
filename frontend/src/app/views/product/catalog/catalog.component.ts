@@ -10,6 +10,9 @@ import {AppliedFilterType} from "../../../../types/applied-filter.type";
 import {debounceTime} from "rxjs";
 import {CartService} from "../../../shared/services/cart.service";
 import {CartType} from "../../../../types/cart.type";
+import {FavoriteService} from "../../../shared/services/favorite.service";
+import {FavoriteType} from "../../../../types/favorite.type";
+import {DefaultResponseType} from "../../../../types/default-response.type";
 
 @Component({
     selector: 'app-catalog',
@@ -24,7 +27,7 @@ export class CatalogComponent implements OnInit {
     cart: CartType | null = null
 
     openSort: boolean = false
-    sortingOptions: {name: string, value: string}[] = [
+    sortingOptions: { name: string, value: string }[] = [
         {name: 'От А до Я', value: 'az-asc'},
         {name: 'От Я до А', value: 'az-desc'},
         {name: 'По возрастанию цены', value: 'price-asc'},
@@ -32,6 +35,7 @@ export class CatalogComponent implements OnInit {
     ]
 
     pages: number[] = []
+    favoriteProducts: FavoriteType[] | null = null
 
     constructor(
         private productService: ProductService,
@@ -39,14 +43,32 @@ export class CatalogComponent implements OnInit {
         private activatedRoute: ActivatedRoute,
         private router: Router,
         private cartService: CartService,
-        ) {
+        private favoriteService: FavoriteService,
+    ) {
     }
 
     ngOnInit(): void {
         this.cartService.getCart().subscribe((result: CartType) => {
             this.cart = result
-        })
 
+            this.favoriteService.getFavorites().subscribe({
+                next: (favoriteResult: FavoriteType[] | DefaultResponseType) => {
+                    if ((favoriteResult as DefaultResponseType).error !== undefined) {
+                        const error = (favoriteResult as DefaultResponseType).message
+                        this.processCatalog()
+                        throw new Error(error)
+                    }
+                    this.favoriteProducts = favoriteResult as FavoriteType[]
+                    this.processCatalog()
+                },
+                error: (error) => {
+                    this.processCatalog()
+                }
+            })
+        })
+    }
+
+    processCatalog(): void {
         this.categoryService.getCategoriesWithTypes().subscribe((result: CategoryWithTypeType[]) => {
             this.categoriesWithTypes = result
 
@@ -56,65 +78,76 @@ export class CatalogComponent implements OnInit {
                     debounceTime(500)
                 )
                 .subscribe(params => {
-                this.activeParams = ActiveParamsUtil.processParams(params)
-                this.appliedFilters = []
-                this.activeParams.types.forEach(url => {
-                    for (let i = 0; i < this.categoriesWithTypes.length; i++) {
-                        const fondType = this.categoriesWithTypes[i].types.find(type => type.url === url)
-                        if (fondType) {
-                            this.appliedFilters.push({
-                                name: fondType.name,
-                                urlParam: fondType.url
+                    this.activeParams = ActiveParamsUtil.processParams(params)
+                    this.appliedFilters = []
+                    this.activeParams.types.forEach(url => {
+                        for (let i = 0; i < this.categoriesWithTypes.length; i++) {
+                            const fondType = this.categoriesWithTypes[i].types.find(type => type.url === url)
+                            if (fondType) {
+                                this.appliedFilters.push({
+                                    name: fondType.name,
+                                    urlParam: fondType.url
+                                })
+                            }
+                        }
+                    })
+
+                    if (this.activeParams.heightFrom) {
+                        this.appliedFilters.push({
+                            name: 'Высота: от ' + this.activeParams.heightFrom + ' см',
+                            urlParam: 'heightFrom'
+                        })
+                    }
+                    if (this.activeParams.heightTo) {
+                        this.appliedFilters.push({
+                            name: 'Высота: до ' + this.activeParams.heightTo + ' см',
+                            urlParam: 'heightTo'
+                        })
+                    }
+                    if (this.activeParams.diameterFrom) {
+                        this.appliedFilters.push({
+                            name: 'Диаметр: от ' + this.activeParams.diameterFrom + ' см',
+                            urlParam: 'diameterFrom'
+                        })
+                    }
+                    if (this.activeParams.diameterTo) {
+                        this.appliedFilters.push({
+                            name: 'Диаметр: до ' + this.activeParams.diameterTo + ' см',
+                            urlParam: 'diameterTo'
+                        })
+                    }
+
+                    // Запрос товаров на сервере
+                    this.productService.getProducts(this.activeParams).subscribe((result) => {
+                        this.pages = []
+                        for (let i = 1; i <= result.pages; i++) {
+                            this.pages.push(i)
+                        }
+
+                        if (this.cart && this.cart.items.length > 0) {
+                            this.products = result.items.map(product => {
+                                const productInCart = this.cart!.items.find(item => item.product.id === product.id)
+                                if (productInCart) {
+                                    product.countInCart = productInCart.quantity
+                                }
+                                return product
+                            })
+                        } else {
+                            this.products = result.items
+                        }
+
+                        // Устанавливаем избранное
+                        if (this.favoriteProducts) {
+                            this.products = this.products.map(product => {
+                                const productInFavorite = this.favoriteProducts?.find(item => item.id === product.id)
+                                if (productInFavorite) {
+                                    product.isInFavorite = true
+                                }
+                                return product
                             })
                         }
-                    }
+                    })
                 })
-
-                if (this.activeParams.heightFrom) {
-                    this.appliedFilters.push({
-                        name: 'Высота: от ' + this.activeParams.heightFrom + ' см',
-                        urlParam: 'heightFrom'
-                    })
-                }
-                if (this.activeParams.heightTo) {
-                    this.appliedFilters.push({
-                        name: 'Высота: до ' + this.activeParams.heightTo + ' см',
-                        urlParam: 'heightTo'
-                    })
-                }
-                if (this.activeParams.diameterFrom) {
-                    this.appliedFilters.push({
-                        name: 'Диаметр: от ' + this.activeParams.diameterFrom + ' см',
-                        urlParam: 'diameterFrom'
-                    })
-                }
-                if (this.activeParams.diameterTo) {
-                    this.appliedFilters.push({
-                        name: 'Диаметр: до ' + this.activeParams.diameterTo + ' см',
-                        urlParam: 'diameterTo'
-                    })
-                }
-
-                // Запрос товаров на сервере
-                this.productService.getProducts(this.activeParams).subscribe((result) => {
-                    this.pages = []
-                    for (let i = 1; i <= result.pages; i++) {
-                        this.pages.push(i)
-                    }
-
-                    if (this.cart && this.cart.items.length > 0) {
-                        this.products = result.items.map(product => {
-                            const productInCart = this.cart!.items.find(item => item.product.id === product.id)
-                            if (productInCart) {
-                                product.countInCart = productInCart.quantity
-                            }
-                            return product
-                        })
-                    } else {
-                        this.products = result.items
-                    }
-                })
-            })
         })
     }
 
@@ -134,7 +167,7 @@ export class CatalogComponent implements OnInit {
         this.openSort = !this.openSort
     }
 
-    sort(value: string):void {
+    sort(value: string): void {
         this.activeParams.sort = value
         this.router.navigate(['/catalog'], {queryParams: this.activeParams})
     }
