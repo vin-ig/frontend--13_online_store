@@ -8,6 +8,7 @@ import {FavoriteType} from "../../../../types/favorite.type";
 import {FavoriteService} from "../../services/favorite.service";
 import {AuthService} from "../../../core/auth/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {Router} from "@angular/router";
 
 @Component({
     selector: 'product-card',
@@ -27,6 +28,7 @@ export class ProductCardComponent implements OnInit {
         private favoriteService: FavoriteService,
         private authService: AuthService,
         private _snackBar: MatSnackBar,
+        private router: Router,
     ) {
     }
 
@@ -79,6 +81,12 @@ export class ProductCardComponent implements OnInit {
 
                 this.product.isInFavorite = true
             })
+        }
+    }
+
+    navigate() {
+        if (this.isLite) {
+            this.router.navigate(['/product/' + this.product.url])
         }
     }
 }
