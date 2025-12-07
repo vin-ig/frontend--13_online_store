@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, HostListener, Input, OnInit} from '@angular/core';
 import {AuthService} from "../../../core/auth/auth.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Router} from "@angular/router";
@@ -6,6 +6,9 @@ import {CategoryWithTypeType} from "../../../../types/category-with-type.type";
 import {CartService} from "../../services/cart.service";
 import {CartCountType} from "../../../../types/cart-count.type";
 import {DefaultResponseType} from "../../../../types/default-response.type";
+import {ProductService} from "../../services/product.service";
+import {ProductType} from "../../../../types/product.type";
+import {environment} from "../../../../environments/environment";
 
 @Component({
     selector: 'app-header',
@@ -13,15 +16,20 @@ import {DefaultResponseType} from "../../../../types/default-response.type";
     styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
+    readonly serverStaticPath: string = environment.serverStaticPath
     @Input() categories: CategoryWithTypeType[] = []
     isLogged: boolean = false
     productsCount: number = 0
+    searchValue: string = ''
+    products: ProductType[] = []
+    showedSearch: boolean = false
 
     constructor(
         private authService: AuthService,
         private _snackBar: MatSnackBar,
         private router: Router,
         private cartService: CartService,
+        private productService: ProductService,
     ) {
         this.isLogged = this.authService.isLogged
     }
@@ -56,5 +64,40 @@ export class HeaderComponent implements OnInit {
         this.authService.userId = null
         this._snackBar.open('Вы вышли из системы', 'Закрыть')
         this.router.navigate(['/'])
+    }
+
+    changedSearchValue(newValue: string) {
+        this.searchValue = newValue
+
+        if (this.searchValue && this.searchValue.length > 2) {
+            this.productService.searchProducts(this.searchValue).subscribe((result: ProductType[]) => {
+                this.products = result
+                this.showedSearch = true
+            })
+        } else {
+            this.products = []
+        }
+    }
+
+    selectProduct(productUrl: string) {
+        this.router.navigate(['/product/' + productUrl])
+        this.searchValue = ''
+        this.products = []
+    }
+
+    /* Способ с фокусом
+    changeShowedSearch(showedSearch: boolean) {
+        setTimeout(() => {
+            this.showedSearch = showedSearch
+        }, 100)
+    }
+     */
+
+    @HostListener('document:click', ['$event'])
+    click(event: Event) {
+        if (this.showedSearch && (event.target as HTMLElement).className.indexOf('search-product') === -1) {
+            this.showedSearch = false
+            this.searchValue = ''
+        }
     }
 }
