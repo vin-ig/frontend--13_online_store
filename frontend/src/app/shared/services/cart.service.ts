@@ -10,7 +10,7 @@ import {CartCountType} from "../../../types/cart-count.type";
     providedIn: 'root'
 })
 export class CartService {
-    count: number = 0
+    private count: number = 0
     count$: Subject<number> = new Subject<number>()
 
     constructor(private http: HttpClient) {
@@ -24,11 +24,11 @@ export class CartService {
         return this.http.post<CartType | DefaultResponseType>(environment.api + 'cart', {productId, quantity}, {withCredentials: true}).pipe(
             tap(result => {
                 if (!result.hasOwnProperty('error')) {
-                    this.count = 0;
+                    let count = 0;
                     (result as CartType).items.forEach(item => {
-                        this.count += item.quantity
+                        count += item.quantity
                     })
-                    this.count$.next(this.count)
+                    this.setCount(count)
                 }
             })
         )
@@ -38,10 +38,14 @@ export class CartService {
         return this.http.get<CartCountType | DefaultResponseType>(environment.api + 'cart/count', {withCredentials: true}).pipe(
             tap((result => {
                 if (!result.hasOwnProperty('error')) {
-                    this.count = (result as CartCountType).count
-                    this.count$.next(this.count)
+                    this.setCount((result as CartCountType).count)
                 }
             }))
         )
+    }
+
+    setCount(count: number) {
+        this.count = count
+        this.count$.next(this.count)
     }
 }
