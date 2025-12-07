@@ -2,11 +2,12 @@ import {Component, OnInit} from '@angular/core';
 import {DeliveryType} from "../../../../types/delivery.type";
 import {PaymentType} from "../../../../types/payment.type";
 import {FormBuilder, Validators} from "@angular/forms";
-import {CartService} from "../../../shared/services/cart.service";
 import {Router} from "@angular/router";
 import {MatSnackBar} from "@angular/material/snack-bar";
-import {MatDialog} from "@angular/material/dialog";
-import {OrderService} from "../../../shared/services/order.service";
+import {UserService} from "../../../shared/services/user.service";
+import {UserInfoType} from "../../../../types/user-info.type";
+import {DefaultResponseType} from "../../../../types/default-response.type";
+import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
     selector: 'app-info',
@@ -44,13 +45,11 @@ export class InfoComponent implements OnInit {
     get paymentType() {return this.userInfoForm.get('paymentType')}
 
     constructor(
-        private cartService: CartService,
+        private userService: UserService,
         private router: Router,
         private _snackBar: MatSnackBar,
         private fb: FormBuilder,
-        private orderService: OrderService,
     ) {
-        // this.updateDeliveryTypeValidation()
     }
 
     ngOnInit(): void {
@@ -59,29 +58,44 @@ export class InfoComponent implements OnInit {
     changeDeliveryType(deliveryType: DeliveryType): void {
         this.deliveryType = deliveryType
         this.userInfoForm.markAsDirty()
-        // this.updateDeliveryTypeValidation()
     }
-
-    /*
-    updateDeliveryTypeValidation() {
-        if (this.deliveryType === DeliveryType.delivery) {
-            this.street?.setValidators(Validators.required)
-            this.house?.setValidators(Validators.required)
-        } else {
-            this.street?.removeValidators(Validators.required)
-            this.house?.removeValidators(Validators.required)
-            this.street?.setValue('')
-            this.house?.setValue('')
-            this.entrance?.setValue('')
-            this.apartment?.setValue('')
-        }
-
-        this.street?.updateValueAndValidity()
-        this.house?.updateValueAndValidity()
-    }
-     */
 
     updateUserInfo() {
+        if (this.userInfoForm.invalid || !this.email?.value || !this.paymentType?.value) {
+            this._snackBar.open('Заполните поля', 'Закрыть')
+            return
+        }
 
+        const paramObject: UserInfoType = {
+            email: this.email.value,
+            deliveryType: this.deliveryType,
+            paymentType: this.paymentType.value,
+        }
+        if (this.firstName?.value) {paramObject.firstName = this.firstName.value}
+        if (this.fatherName?.value) {paramObject.fatherName = this.fatherName.value}
+        if (this.lastName?.value) {paramObject.lastName = this.lastName.value}
+        if (this.phone?.value) {paramObject.phone = this.phone.value}
+        if (this.street?.value) {paramObject.street = this.street.value}
+        if (this.house?.value) {paramObject.house = this.house.value}
+        if (this.entrance?.value) {paramObject.entrance = this.entrance.value}
+
+        this.userService.updateUserInfo(paramObject).subscribe({
+            next: (result: DefaultResponseType) => {
+                if (result.error) {
+                    this._snackBar.open(result.message, 'Закрыть')
+                    throw new Error(result.message)
+                }
+
+                this._snackBar.open('Данные успешно сохранены!', 'Закрыть')
+                this.userInfoForm.markAsPristine()
+            },
+            error: (errorResponse: HttpErrorResponse) => {
+                if (errorResponse.error && errorResponse.error.message) {
+                    this._snackBar.open(errorResponse.error.message, 'Закрыть')
+                } else {
+                    this._snackBar.open('Ошибка сохранения', 'Закрыть')
+                }
+            }
+        })
     }
 }
