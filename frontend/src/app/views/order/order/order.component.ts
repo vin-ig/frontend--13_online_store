@@ -11,6 +11,9 @@ import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {OrderService} from "../../../shared/services/order.service";
 import {OrderType} from "../../../../types/order.type";
 import {HttpErrorResponse} from "@angular/common/http";
+import {UserService} from "../../../shared/services/user.service";
+import {UserInfoType} from "../../../../types/user-info.type";
+import {AuthService} from "../../../core/auth/auth.service";
 
 @Component({
     selector: 'app-order',
@@ -64,6 +67,8 @@ export class OrderComponent implements OnInit {
         private fb: FormBuilder,
         private dialog: MatDialog,
         private orderService: OrderService,
+        private userService: UserService,
+        private authService: AuthService,
     ) {
         this.updateDeliveryTypeValidation()
     }
@@ -81,6 +86,30 @@ export class OrderComponent implements OnInit {
             }
             this.calculateTotal()
         })
+
+        if (this.authService.isLogged) {
+            this.userService.getUserInfo().subscribe((result: UserInfoType | DefaultResponseType) => {
+                if ((result as DefaultResponseType).error !== undefined) {
+                    throw new Error((result as DefaultResponseType).message)
+                }
+
+                const userInfo = result as UserInfoType
+                this.deliveryType = userInfo.deliveryType || DeliveryType.delivery
+                this.orderForm.setValue({
+                    firstName: userInfo.firstName || '',
+                    fatherName: userInfo.fatherName || '',
+                    lastName: userInfo.lastName || '',
+                    phone: userInfo.phone || '',
+                    email: userInfo.email || '',
+                    street: userInfo.street || '',
+                    house: userInfo.house || '',
+                    entrance: userInfo.entrance || '',
+                    apartment: userInfo.apartment || '',
+                    paymentType: userInfo.paymentType || PaymentType.cardOnline,
+                    comment: '',
+                })
+            })
+        }
     }
 
     calculateTotal(): void {
