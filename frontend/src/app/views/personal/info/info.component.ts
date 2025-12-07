@@ -53,6 +53,26 @@ export class InfoComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.userService.getUserInfo().subscribe((result: UserInfoType | DefaultResponseType) => {
+            if ((result as DefaultResponseType).error !== undefined) {
+                throw new Error((result as DefaultResponseType).message)
+            }
+
+            const userInfo = result as UserInfoType
+            this.deliveryType = userInfo.deliveryType || DeliveryType.delivery
+            this.userInfoForm.setValue({
+                firstName: userInfo.firstName || '',
+                fatherName: userInfo.fatherName || '',
+                lastName: userInfo.lastName || '',
+                phone: userInfo.phone || '',
+                email: userInfo.email || '',
+                street: userInfo.street || '',
+                house: userInfo.house || '',
+                entrance: userInfo.entrance || '',
+                apartment: userInfo.apartment || '',
+                paymentType: userInfo.paymentType || PaymentType.cardOnline,
+            })
+        })
     }
 
     changeDeliveryType(deliveryType: DeliveryType): void {
