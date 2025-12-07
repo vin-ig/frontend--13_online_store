@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, TemplateRef, ViewChild} from '@angular/core';
 import {CartService} from "../../../shared/services/cart.service";
 import {CartType} from "../../../../types/cart.type";
 import {DefaultResponseType} from "../../../../types/default-response.type";
@@ -7,6 +7,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {DeliveryType} from "../../../../types/delivery.type";
 import {FormBuilder, Validators} from "@angular/forms";
 import {PaymentType} from "../../../../types/payment.type";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 
 @Component({
     selector: 'app-order',
@@ -23,6 +24,9 @@ export class OrderComponent implements OnInit {
     deliveryTypes = DeliveryType
     paymentTypes = PaymentType
     deliveryType: DeliveryType = DeliveryType.delivery
+
+    @ViewChild('popup') popup!: TemplateRef<ElementRef>
+    dialogRef: MatDialogRef<any> | null = null
 
     orderForm = this.fb.group({
         firstName: ['', Validators.required],
@@ -55,6 +59,7 @@ export class OrderComponent implements OnInit {
         private router: Router,
         private _snackBar: MatSnackBar,
         private fb: FormBuilder,
+        private dialog: MatDialog,
     ) {
         this.updateDeliveryTypeValidation()
     }
@@ -110,6 +115,14 @@ export class OrderComponent implements OnInit {
     }
 
     createOrder() {
+        this.dialogRef = this.dialog.open(this.popup)
+        this.dialogRef.backdropClick().subscribe(() => {
+            this.router.navigate(['/'])
+        })
+    }
 
+    closePopup() {
+        this.dialogRef?.close()
+        this.router.navigate(['/'])
     }
 }
