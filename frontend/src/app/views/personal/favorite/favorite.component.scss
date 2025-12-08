@@ -41,31 +41,44 @@
             }
 
             .favorite-product-image {
-                @include background-image(100px, 100px, 5px)
+                @include background-image(100px, 100px, 5px);
+                cursor: pointer;
             }
 
             .favorite-product-name {
                 margin-left: 24px;
                 font-size: 20px;
                 color: $gray-text-color;
-                width: 567px;
+                width: 500px;
                 margin-right: 20px;
             }
 
             .favorite-product-price {
                 width: 100px;
-                margin-right: 193px;
+                margin-right: 20px;
                 font-weight: 600;
                 font-size: 22px;
                 color: $gray-text-color;
             }
 
-            .favorite-product-action button {
-                width: 160px;
+            .favorite-product-action {
+                display: flex;
+                align-items: center;
+                justify-content: right;
+                width: 280px;
+                margin-right: 20px;
+
+                button {
+                    width: 160px;
+
+                    &.button-transparent {
+                        width: 160px;
+                        margin-left: 20px;
+                    }
+                }
             }
 
             .favorite-product-remove {
-                margin-left: 60px;
                 cursor: pointer;
             }
         }
