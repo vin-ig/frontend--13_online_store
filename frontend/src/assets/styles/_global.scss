@@ -16,6 +16,10 @@ a {
 
     &:visited {
         color: inherit;
+
+        &.button {
+            color: white;
+        }
     }
 }
 

@@ -108,6 +108,7 @@ export class OrderComponent implements OnInit {
                     paymentType: userInfo.paymentType || PaymentType.cardOnline,
                     comment: '',
                 })
+                this.updateDeliveryTypeValidation()
             })
         }
     }
