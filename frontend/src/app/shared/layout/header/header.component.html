@@ -16,17 +16,15 @@
                                 <a routerLink="/catalog">Каталог</a>
                             </li>
                             <li>
-                                <a>Отзывы</a>
+                                <a routerLink="/" fragment="reviews">Отзывы</a>
                             </li>
                             <li>
-                                <a>Доставка и оплата</a>
+                                <a routerLink="/" fragment="info">Доставка и оплата</a>
                             </li>
                         </ul>
                     </nav>
                 </div>
-                <a class="header-top-phone" href="tel:+375299182888">
-                    + 375 (29) 918-28-88
-                </a>
+                <a class="header-top-phone" href="tel:+375299182888">+ 375 (29) 918-28-88</a>
                 <div class="header-top-actions">
                     <a *ngIf="isLogged" [matMenuTriggerFor]="menu">
                         <!-- Profile -->
@@ -58,7 +56,6 @@
                             <path d="M12.123 8.28955L15.3335 11.5L12.123 14.7104" stroke="#202B21" stroke-width="1.5"
                                   stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-
                     </a>
                     <a routerLink="/favorite">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
