@@ -199,10 +199,15 @@ a {
     transform: scale(1);
 }
 
+// Popup
 .mat-dialog-container {
     padding: 0 !important;
 }
 
+// Loader
+.mat-progress-spinner circle, .mat-spinner circle {
+    stroke: #648F64;
+}
 
 //Отсутствие данных
 .empty-list {
