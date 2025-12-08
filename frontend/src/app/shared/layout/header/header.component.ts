@@ -42,6 +42,9 @@ export class HeaderComponent implements OnInit {
         })
 
         this.cartService.getProductsCount().subscribe((result: CartCountType | DefaultResponseType) => {
+            if ((result as DefaultResponseType).error !== undefined) {
+                throw new Error((result as DefaultResponseType).message)
+            }
             this.productsCount = (result as CartCountType).count
         })
 
