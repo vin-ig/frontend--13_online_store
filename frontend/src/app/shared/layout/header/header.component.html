@@ -105,9 +105,7 @@
                     </nav>
                 </div>
                 <div class="header-bottom-search">
-<!--                           (blur)="changeShowedSearch(false)" (focus)="changeShowedSearch(true)" Способ с фокусом-->
-                    <input type="text" placeholder="Начните искать"
-                           [ngModel]="searchValue" (ngModelChange)="changedSearchValue($event)">
+                    <input type="text" placeholder="Начните искать" [formControl]="searchField">
 
                     <div class="search-products" *ngIf="showedSearch && products.length > 0">
                         <div class="search-product" *ngFor="let product of products" (click)="selectProduct(product.url)">

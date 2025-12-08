@@ -9,6 +9,8 @@ import {DefaultResponseType} from "../../../../types/default-response.type";
 import {ProductService} from "../../services/product.service";
 import {ProductType} from "../../../../types/product.type";
 import {environment} from "../../../../environments/environment";
+import {FormControl} from "@angular/forms";
+import {debounceTime} from "rxjs";
 
 @Component({
     selector: 'app-header',
@@ -20,9 +22,9 @@ export class HeaderComponent implements OnInit {
     @Input() categories: CategoryWithTypeType[] = []
     isLogged: boolean = false
     productsCount: number = 0
-    searchValue: string = ''
     products: ProductType[] = []
     showedSearch: boolean = false
+    searchField: FormControl = new FormControl()
 
     constructor(
         private authService: AuthService,
@@ -46,6 +48,21 @@ export class HeaderComponent implements OnInit {
         this.cartService.count$.subscribe((result: number) => {
             this.productsCount = result
         })
+
+        this.searchField.valueChanges
+            .pipe(
+                debounceTime(500)
+            )
+            .subscribe(value => {
+                if (value && value.length > 2) {
+                    this.productService.searchProducts(value).subscribe((result: ProductType[]) => {
+                        this.products = result
+                        this.showedSearch = true
+                    })
+                } else {
+                    this.products = []
+                }
+            })
     }
 
     logout(): void {
@@ -66,38 +83,17 @@ export class HeaderComponent implements OnInit {
         this.router.navigate(['/'])
     }
 
-    changedSearchValue(newValue: string) {
-        this.searchValue = newValue
-
-        if (this.searchValue && this.searchValue.length > 2) {
-            this.productService.searchProducts(this.searchValue).subscribe((result: ProductType[]) => {
-                this.products = result
-                this.showedSearch = true
-            })
-        } else {
-            this.products = []
-        }
-    }
-
     selectProduct(productUrl: string) {
         this.router.navigate(['/product/' + productUrl])
-        this.searchValue = ''
+        this.searchField.setValue('')
         this.products = []
     }
-
-    /* Способ с фокусом
-    changeShowedSearch(showedSearch: boolean) {
-        setTimeout(() => {
-            this.showedSearch = showedSearch
-        }, 100)
-    }
-     */
 
     @HostListener('document:click', ['$event'])
     click(event: Event) {
         if (this.showedSearch && (event.target as HTMLElement).className.indexOf('search-product') === -1) {
             this.showedSearch = false
-            this.searchValue = ''
+            this.searchField.setValue('')
         }
     }
 }
