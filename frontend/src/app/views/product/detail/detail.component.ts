@@ -22,6 +22,7 @@ export class DetailComponent implements OnInit {
     recommendedProducts: ProductType[] = []
     product!: ProductType
     count: number = 1
+    isLogged: boolean = false
 
     customOptions: OwlOptions = {
         loop: true,
@@ -57,9 +58,14 @@ export class DetailComponent implements OnInit {
         private authService: AuthService,
         private _snackBar: MatSnackBar,
     ) {
+        this.isLogged = this.authService.isLogged
     }
 
     ngOnInit(): void {
+        this.authService.isLogged$.subscribe((result: boolean) => {
+            this.isLogged = result
+        })
+
         this.activatedRoute.params.subscribe((params) => {
             this.productService.getProduct(params['url']).subscribe((result: ProductType) => {
                 this.product = result

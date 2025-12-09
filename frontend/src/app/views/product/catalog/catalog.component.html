@@ -45,7 +45,9 @@
                 <product-card [countInCart]="product.countInCart" *ngFor="let product of products" [product]="product"></product-card>
             </div>
 
-            <div class="catalog-empty-result" *ngIf="products.length === 0">Товары не найдены. Попробуйте изменить условия поиска</div>
+            <div class="empty-list" *ngIf="appliedFilters.length > 0 && products.length === 0">
+                <div>Товары не найдены. Попробуйте изменить условия поиска</div>
+            </div>
         </div>
 
 
