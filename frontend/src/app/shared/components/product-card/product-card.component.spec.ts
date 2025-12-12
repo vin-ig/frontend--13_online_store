@@ -17,7 +17,7 @@ describe('Product Card', () => {
     beforeEach(() => {
         const cartServiceSpy = jasmine.createSpyObj('CartService', ['updateCart'])
         const favoriteServiceSpy = jasmine.createSpyObj('FavoriteService', ['removeFavorite', 'addToFavorite'])
-        const authServiceSpy = jasmine.createSpyObj('AuthService', ['isLogged'])
+        const authServiceSpy = jasmine.createSpyObj('AuthService', ['isLogged'], {isLogged$: of(true)})
         const _snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open'])
         const routerSpy = jasmine.createSpyObj('Router', ['navigate'])
 
